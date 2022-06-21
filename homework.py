@@ -40,7 +40,7 @@ HOMEWORK_STATUSES = {
 
 
 def send_message(bot, message):
-    '''Отправляет сообщение в телеграм.'''
+    """Отправляет сообщение в телеграм."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
     except TelegramError as error:
@@ -52,7 +52,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    '''Получает ответ от API.'''
+    """Получает ответ от API."""
     params = {'from_date': current_timestamp}
     try:
         response = requests.get(ENDPOINT, headers=HEADERS, params=params)
@@ -73,7 +73,7 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    '''Проверяет полученные данные.'''
+    """Проверяет полученные данные."""
     if not isinstance(response, dict):
         raise TypeError(
             f'Ошибка в типе полученных данных '
@@ -101,7 +101,7 @@ def check_response(response):
 
 
 def parse_status(homework):
-    '''Подгоняет формат данных под строку.'''
+    """Подгоняет формат данных под строку."""
     homework_name = homework.get('homework_name')
     homework_status = homework.get('status')
 
@@ -121,7 +121,7 @@ def parse_status(homework):
 
 
 def check_tokens():
-    '''Проверяет переменные окружения.'''
+    """Проверяет переменные окружения."""
     env_vars = {
         'PRACTICUM_TOKEN': PRACTICUM_TOKEN,
         'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
