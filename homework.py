@@ -127,50 +127,48 @@ def check_tokens():
         'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
         'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID,
     }
+
     for key, value in env_vars.items():
         if not value:
             logger.critical(f'Отсутствует переменная окружения {key}')
-            return False
-    return True
+    return all((PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID))
 
 
 def main():
     """Основная логика работы бота."""
-    if check_tokens():
+    if not check_tokens():
+        sys.exit('Работа бота была прервана')
 
-        bot = telegram.Bot(token=TELEGRAM_TOKEN)
-        current_timestamp = int(time.time())
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
 
-        error_cache = ''
+    error_cache = ''
 
-        while True:
-            try:
-                response = get_api_answer(current_timestamp)
-                homeworks = check_response(response)
+    while True:
+        try:
+            response = get_api_answer(current_timestamp)
+            homeworks = check_response(response)
 
-                if len(homeworks) > 0:
-                    text = parse_status(homeworks[0])
-                    send_message(bot, text)
-                response_date = response.get('current_date')
+            if len(homeworks) > 0:
+                text = parse_status(homeworks[0])
+                send_message(bot, text)
+            response_date = response.get('current_date')
 
-                if isinstance(response_date, int):
-                    current_timestamp = response_date
+            if isinstance(response_date, int):
+                current_timestamp = response_date
 
-            except (exceptions.BotError, exceptions.DateError) as error:
-                logger.error(error)
+        except (exceptions.BotError, exceptions.DateError) as error:
+            logger.error(error)
 
-            except Exception as error:
-                message = f'Сбой в работе программы: {error}'
-                logger.error(message)
-                if error_cache != message:
-                    send_message(bot, message)
-                    error_cache = message
+        except Exception as error:
+            message = f'Сбой в работе программы: {error}'
+            logger.error(message)
+            if error_cache != message:
+                send_message(bot, message)
+                error_cache = message
 
-            finally:
-                time.sleep(RETRY_TIME)
-
-    else:
-        logger.critical('Работа бота была прервана')
+        finally:
+            time.sleep(RETRY_TIME)
 
 
 if __name__ == '__main__':
